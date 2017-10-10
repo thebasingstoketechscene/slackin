@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run: bash .circleci/deploy-to-heroku.sh
+      - add_ssh_keys:
+          fingerprints:
+            - "20:a7:e6:8d:f5:3a:7c:12:76:56:a6:70:e8:a9:71:a9"
+      - deploy:
+          name: Deploy Master to Heroku
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              git push heroku master
+              heroku run python manage.py deploy
+              heroku restart
+            fi
